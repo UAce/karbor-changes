@@ -7,7 +7,7 @@ Changes to fix Karbor
 - source: https://github.com/openstack/python-karborclient/blob/stable/stein/karborclient/v1/checkpoints.py
 - file location: `/var/lib/kolla/venv/lib/python2.7/site-packages/karborclient/v1/checkpoints.py`
 ```
-def create(self, provider_id, plan_id, checkpoint_extra_info=None):
+    def create(self, provider_id, plan_id, checkpoint_extra_info=None):
         body = {'checkpoint': {'plan_id': plan_id,
  -                             'extra-info': checkpoint_extra_info}}
  +                             'extra_info': checkpoint_extra_info}}
