@@ -54,8 +54,8 @@ ________________________________________________________________________________
         except Exception:
             self._skp.delete_trust_to_karbor(trust_id)
             raise
-        self._add_user_trust_info(context.user_id, context.project_id,
-                                  operation_id, trust_id, lsession)
+ -      self._add_user_trust_info(context.user_id, context.project_id,
+ -                                operation_id, trust_id, lsession)
  +      if auth_info:
  +         auth_info['operation_ids'].add(operation_id)
  +         auth_info['session'] = lsession
