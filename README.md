@@ -155,3 +155,46 @@ ________________________________________________________________________________
 &nbsp;
 
 ### container: karbor_protection
+
+- source: https://github.com/openstack/karbor/blob/stable/stein/karbor/services/protection/protection_plugins/server/nova_protection_plugin.py
+- file location: `/var/lib/kolla/venv/lib/python2.7/site-packages/karbor/services/protection/protection_plugins/server/nova_protection_plugin.py`
+```
+    # get attach_metadata about volume
+    attach_metadata = {}
+ +  bootable = False
+    for server_child_node in server_child_nodes:
+        child_resource = server_child_node.value
+        if child_resource.type == constants.VOLUME_RESOURCE_TYPE:
+            volume = cinder_client.volumes.get(child_resource.id)
+            attachments = getattr(volume, "attachments")
+            for attachment in attachments:
+                if attachment["server_id"] == server_id:
+                    attachment["bootable"] = getattr(
+                        volume, "bootable")
+ +                  bootable = bootable or attachment["bootable"] == "true"
+                    attach_metadata[child_resource.id] = attachment
+    resource_definition["attach_metadata"] = attach_metadata
+
+
+//...
+
+ -  if image_info is not None and isinstance(image_info, dict):
+ +  if image_info is not None and isinstance(image_info, dict) and not bootable:
+        boot_metadata["boot_device_type"] = "image"
+        boot_metadata["boot_image_id"] = image_info['id']
+    else:
+        boot_metadata["boot_device_type"] = "volume"
+        volumes_attached = getattr(
+            server, "os-extended-volumes:volumes_attached", [])
+        for volume_attached in volumes_attached:
+            volume_id = volume_attached["id"]
+            volume_attach_metadata = attach_metadata.get(
+                volume_id, None)
+            if volume_attach_metadata is not None and (
+                    volume_attach_metadata["bootable"] == "true"):
+                boot_metadata["boot_volume_id"] = volume_id
+                boot_metadata["boot_attach_metadata"] = (
+                    volume_attach_metadata)
+    resource_definition["boot_metadata"] = boot_metadata
+
+```
